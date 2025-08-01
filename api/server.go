@@ -11,12 +11,12 @@ import (
 )
 
 func authMiddleware(c fiber.Ctx) error {
-	h := c.Get("Authorization") // "<ts>:<hex-sig>"
+	h := c.Get("Authorization")
 	if h == "" {
 		return fiber.ErrUnauthorized
 	}
 
-	if err := auth.Verify(h); err != nil {
+	if err := auth.VerifyRollingHash(h); err != nil {
 		return fiber.ErrUnauthorized
 	}
 	return c.Next()
@@ -37,7 +37,7 @@ func NewAPIServer(hsClient command.HandlerServiceClient) *fiber.App {
 		StrictRouting: true,
 	})
 
-	// app.Use(authMiddleware)
+	app.Use(authMiddleware)
 
 	app.Get("/", func(c fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusOK)
