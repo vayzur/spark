@@ -1,14 +1,14 @@
 [tls]
-enabled = false
+enabled = true
 cert_file = "/etc/letsencrypt/live/sub.domain.tld/fullchain.pem"
 key_file = "/etc/letsencrypt/live/sub.domain.tld/privkey.pem"
 
 [server]
-addr = ":8081"
+addr = ":10100"
 prefork = true
 
 [xray]
-addr = "127.0.0.1:8082"
+addr = "127.0.0.1:8080"
 
 [auth]
 secret = "secret!"
