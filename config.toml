@@ -1,7 +1,7 @@
 [tls]
 enabled = false
-cert_file = "/etc/spark/certs/fullchain.pem"
-key_file = "/etc/spark/certs/privkey.pem"
+cert_file = "/etc/letsencrypt/live/sub.domain.tld/fullchain.pem"
+key_file = "/etc/letsencrypt/live/sub.domain.tld/privkey.pem"
 
 [server]
 addr = ":8081"
