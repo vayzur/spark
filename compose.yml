@@ -9,10 +9,10 @@ services:
       context: .
       dockerfile: Dockerfile
     image: spark
+    # ports:
+      # - ""
     networks:
       - spark_net
-    env_file:
-      - .env
     deploy:
       mode: replicated
       replicas: 3

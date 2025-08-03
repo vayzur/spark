@@ -7,14 +7,13 @@ RUN go mod download && go mod verify
 
 COPY . . 
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" cmd/main.go -o app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" cmd/main.go -o spark
 
 FROM alpine:3.22 AS prod
 
 WORKDIR /app
 
-COPY --from=builder /app .
+COPY --from=builder /spark .
+COPY --from=builder /config.yml .
 
-EXPOSE 443/tcp
-
-CMD [ "./app" ]
+CMD [ "/app/spark -config config.yml" ]
