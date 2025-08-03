@@ -20,8 +20,8 @@ archives:
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
 
 checksum:
-  name_template: "{{ .ProjectName }}-checksums.txt"
-  split: false
+  name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}-checksum.txt"
+  split: true
 
 changelog:
   filters:
