@@ -58,7 +58,7 @@ Authorization: rolling ts:hash
 SECRET="your-shared-secret"
 TS=$(date +%s)
 HASH=$(echo -n "${TS}:${SECRET}" | sha256sum | cut -d ' ' -f1)
-curl -H "Authorization: rolling ${TS}:${HASH}" http://localhost:10100/health
+curl -H "Authorization: rolling ${TS}:${HASH}" http://localhost:10100/healthz
 ```
 
 ---
