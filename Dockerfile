@@ -14,6 +14,6 @@ FROM alpine:3.22 AS prod
 WORKDIR /app
 
 COPY --from=builder /spark .
-COPY --from=builder /config.yml .
+COPY --from=builder /config.toml .
 
-CMD [ "/app/spark -config config.yml" ]
+CMD [ "/app/spark -config config.toml" ]
