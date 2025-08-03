@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	"github.com/vayzur/spark/api"
@@ -9,9 +10,14 @@ import (
 )
 
 func main() {
-	config.LoadConfig()
+	configPath := flag.String("config", "", "Path to config file")
+	flag.Parse()
 
-	xrayConn, err := xray.NewXrayConn(config.AppConfig.XrayAPIAddr)
+	if err := config.LoadConfig(*configPath); err != nil {
+		log.Fatalf("config error: %v\n", err)
+	}
+
+	xrayConn, err := xray.NewXrayConn(config.AppConfig.Xray.Addr)
 	if err != nil {
 		log.Fatalf("failed to connect xray grpc server: %v", err)
 	}
@@ -20,10 +26,9 @@ func main() {
 
 	app := api.NewAPIServer(hsClient)
 
-	if !config.AppConfig.Development {
-		api.StartAPIServerTLS(config.AppConfig.APIServerAddr, app)
+	if config.AppConfig.TLS.Enabled {
+		api.StartAPIServerTLS(config.AppConfig.Server.Addr, app)
 	} else {
-		api.StartAPIServer(config.AppConfig.APIServerAddr, app)
+		api.StartAPIServer(config.AppConfig.Server.Addr, app)
 	}
-
 }

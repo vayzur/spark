@@ -1,13 +1,10 @@
 package api
 
 import (
-	"crypto/tls"
-
 	"github.com/gofiber/fiber/v3"
 	"github.com/vayzur/spark/config"
 	"github.com/vayzur/spark/internal/auth"
 	"github.com/xtls/xray-core/app/proxyman/command"
-	"golang.org/x/crypto/acme/autocert"
 )
 
 func authMiddleware(c fiber.Ctx) error {
@@ -52,22 +49,16 @@ func NewAPIServer(hsClient command.HandlerServiceClient) *fiber.App {
 	return app
 }
 
-func StartAPIServerTLS(addr string, app *fiber.App) {
-	certManager := &autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(config.AppConfig.Domain),
-		Cache:      autocert.DirCache("./certs"),
-	}
-
-	app.Listen(config.AppConfig.APIServerAddr, fiber.ListenConfig{
-		AutoCertManager: certManager,
-		TLSMinVersion:   tls.VersionTLS12,
-		EnablePrefork:   true,
+func StartAPIServerTLS(addr string, app *fiber.App) error {
+	return app.Listen(addr, fiber.ListenConfig{
+		CertFile:      config.AppConfig.TLS.CertFile,
+		CertKeyFile:   config.AppConfig.TLS.KeyFile,
+		EnablePrefork: config.AppConfig.Server.Prefork,
 	})
 }
 
-func StartAPIServer(addr string, app *fiber.App) {
-	app.Listen(config.AppConfig.APIServerAddr, fiber.ListenConfig{
-		EnablePrefork: true,
+func StartAPIServer(addr string, app *fiber.App) error {
+	return app.Listen(addr, fiber.ListenConfig{
+		EnablePrefork: config.AppConfig.Server.Prefork,
 	})
 }
