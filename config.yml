@@ -1,0 +1,14 @@
+tls:
+  enabled: false
+  cert_file: "/etc/spark/certs/fullchain.pem"
+  key_file: "/etc/spark/certs/privkey.pem"
+
+server:
+  addr: ":8081"
+  prefork: true
+
+xray:
+  addr: "127.0.0.1:8082"
+
+auth:
+  secret: "secret!"
