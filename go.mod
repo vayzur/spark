@@ -6,7 +6,6 @@ require (
 	github.com/gofiber/fiber/v3 v3.0.0-beta.5
 	github.com/spf13/viper v1.20.1
 	github.com/xtls/xray-core v1.8.25-0.20250218115507-52381a3c038b
-	golang.org/x/crypto v0.40.0
 	google.golang.org/grpc v1.70.0
 )
 
@@ -53,6 +52,7 @@ require (
 	github.com/xtls/reality v0.0.0-20240712055506-48f0b2d5ed6d // indirect
 	go.uber.org/mock v0.5.0 // indirect
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba // indirect
+	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc // indirect
 	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
