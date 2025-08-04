@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/vayzur/spark/config"
 	"github.com/vayzur/spark/internal/auth"
 	"github.com/xtls/xray-core/app/proxyman/command"
@@ -36,14 +37,10 @@ func NewAPIServer(hsClient command.HandlerServiceClient) *fiber.App {
 
 	app.Use(authMiddleware)
 
-	app.Get("/", func(c fiber.Ctx) error {
-		return c.SendStatus(fiber.StatusOK)
-	})
+	app.Get("/healthz", healthcheck.New())
 
-	app.Get("/healthz", healthz)
-
-	inbounds := app.Group("/inbounds", requireJSON)
-	inbounds.Post("/", addInbound(hsClient))
+	inbounds := app.Group("/inbounds")
+	inbounds.Post("", requireJSON, addInbound(hsClient))
 	inbounds.Delete("/:tag", removeInbound(hsClient))
 
 	return app
