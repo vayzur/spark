@@ -21,8 +21,8 @@ func removeInbound(hsClient command.HandlerServiceClient) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		tag := c.Params("tag")
 
-		if tag != "" {
-			return c.SendStatus(fiber.StatusBadRequest)
+		if tag == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "tag parameter is required"})
 		}
 
 		if err := xray.RemoveInbound(hsClient, tag); err != nil {
