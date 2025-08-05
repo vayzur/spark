@@ -1,5 +1,12 @@
 #!/bin/bash
+
 set -e
+
+GREEN="\033[0;32m"
+YELLOW="\033[0;33m"
+BLUE="\033[0;34m"
+RED="\033[0;31m"
+RESET="\033[0m"
 
 SPARK_DIR="/etc/spark"
 CONFIG_FILE="/etc/spark/config.toml"
@@ -32,16 +39,22 @@ if [[ "$ARCH" == "unsupported" || "$DISTRO" == "unsupported" ]]; then
   exit 1
 fi
 
+echo -e "${GREEN}[INFO] Installing required packages...${RESET}"
+
 if [[ "$DISTRO" == "debian" ]]; then
   apt-get update
-  apt-get install -yqq unzip wget uuid-runtime certbot
+  apt-get install -yqq unzip wget certbot
 elif [[ "$DISTRO" == "redhat" ]]; then
-  yum install -y unzip wget uuid certbot
+  yum install -yq unzip wget certbot
 fi
 
-certbot certonly --standalone --keep --preferred-challenges http -d "${DOMAIN}" --non-interactive --agree-tos --register-unsafely-without-email
+echo -e "${GREEN}[INFO] Getting TLS certificates...${RESET}"
+
+certbot certonly -q --standalone --keep --preferred-challenges http -d "${DOMAIN}" --non-interactive --agree-tos --register-unsafely-without-email
 
 cd /tmp
+
+echo -e "${GREEN}[INFO] Downloading binary...${RESET}"
 
 wget -q -O /tmp/spark.zip "https://github.com/vayzur/spark/releases/latest/download/spark-linux-${ARCH}.zip"
 
@@ -54,12 +67,12 @@ mkdir -p "${SPARK_DIR}"
 wget -q -O "${SERVICE_FILE}" https://raw.githubusercontent.com/vayzur/spark/main/spark.service
 wget -q -O "${CONFIG_FILE}" https://raw.githubusercontent.com/vayzur/spark/main/config.toml
 
-SECRET=$(uuidgen)
+SECRET=$(cat /proc/sys/kernel/random/uuid)
 
 sed -i "s|sub\.domain\.tld|${DOMAIN}|g" "${CONFIG_FILE}"
 sed -i "s|secret = \".*\"|secret = \"${SECRET}\"|g" "${CONFIG_FILE}"
 
 systemctl daemon-reload
-systemctl enable --now spark
+systemctl enable --now spark > /dev/null 2>&1
 
-echo "[+] Done. Spark is running!"
+echo -e "${GREEN}[INFO] Done. Spark is running!${RESET}"
