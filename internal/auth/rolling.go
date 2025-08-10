@@ -35,7 +35,7 @@ func VerifyRollingHash(header string) error {
 	}
 
 	var b []byte
-	b = fmt.Appendf(b, "%d:%s", ts, config.AppConfig.Auth.Secret)
+	b = fmt.Appendf(b, "%d:%s", ts, config.AppConfig.Token)
 	hash := sha256.Sum256(b)
 	expected := hex.EncodeToString(hash[:])
 
