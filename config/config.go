@@ -2,29 +2,45 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/viper"
 )
 
+const (
+	SparkDir = "/etc/spark"
+	ConfigFile = "spark.yml"
+)
+
+type TLSConfig struct {
+	Enabled  bool   `mapstructure:"enabled" yaml:"enabled"`
+	CertFile string `mapstructure:"certFile" yaml:"certFile"`
+	KeyFile  string `mapstructure:"keyFile" yaml:"keyFile"`
+}
+
+type XrayConfig struct {
+	Address string `mapstructure:"address" yaml:"address"`
+	Port    uint16 `mapstructure:"port" yaml:"port"`
+}
+
+type InfernoConfig struct {
+	Enabled bool   `mapstructure:"enabled" yaml:"enabled"`
+	Server  string `mapstructure:"server" yaml:"server"`
+	Token   string `mapstructure:"token" yaml:"token"`
+}
+
 type Config struct {
-	TLS struct {
-		Enabled  bool   `mapstructure:"enabled"`
-		CertFile string `mapstructure:"cert_file"`
-		KeyFile  string `mapstructure:"key_file"`
-	} `mapstructure:"tls"`
-
-	Server struct {
-		Addr    string `mapstructure:"addr"`
-		Prefork bool   `mapstructure:"prefork"`
-	} `mapstructure:"server"`
-
-	Xray struct {
-		Addr string `mapstructure:"addr"`
-	} `mapstructure:"xray"`
-
-	Auth struct {
-		Secret string `mapstructure:"secret"`
-	} `mapstructure:"auth"`
+	ID                        string        `mapstructure:"nodeID" yaml:"id"`
+	Address                   string        `mapstructure:"address" yaml:"address"`
+	Port                      uint16        `mapstructure:"port" yaml:"port"`
+	Prefork                   bool          `mapstructure:"prefork" yaml:"prefork"`
+	Token                     string        `mapstructure:"token" yaml:"token"`
+	TLS                       TLSConfig     `mapstructure:"tls" yaml:"tls"`
+	Xray                      XrayConfig    `mapstructure:"xray" yaml:"xray"`
+	Inferno                   InfernoConfig `mapstructure:"inferno" yaml:"inferno"`
+	NodeStatusUpdateFrequency time.Duration `mapstructure:"nodeStatusUpdateFrequency" yaml:"nodeStatusUpdateFrequency"`
+	NodeLeaseDurationSeconds  time.Duration `mapstructure:"nodeLeaseDurationSeconds" yaml:"nodeLeaseDurationSeconds"`
+	NodeStatusReportFrequency time.Duration `mapstructure:"nodeStatusReportFrequency" yaml:"nodeStatusReportFrequency"`
 }
 
 var AppConfig *Config
