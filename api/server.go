@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
+	apiv1 "github.com/vayzur/spark/api/v1"
 	"github.com/vayzur/spark/config"
 	"github.com/vayzur/spark/internal/auth"
 	"github.com/xtls/xray-core/app/proxyman/command"
@@ -37,11 +38,15 @@ func NewAPIServer(hsClient command.HandlerServiceClient) *fiber.App {
 
 	app.Use(authMiddleware)
 
-	app.Get("/healthz", healthcheck.New())
+	app.Get(healthcheck.LivenessEndpoint, healthcheck.New())
+	app.Get(healthcheck.ReadinessEndpoint, healthcheck.New())
 
-	inbounds := app.Group("/inbounds")
-	inbounds.Post("", requireJSON, addInbound(hsClient))
-	inbounds.Delete("/:tag", removeInbound(hsClient))
+	api := app.Group("/api")
+	v1 := api.Group("/v1")
+
+	inbounds := v1.Group("/inbounds")
+	inbounds.Post("", requireJSON, apiv1.AddInbound(hsClient))
+	inbounds.Delete("/:tag", apiv1.RemoveInbound(hsClient))
 
 	return app
 }
@@ -50,12 +55,12 @@ func StartAPIServerTLS(addr string, app *fiber.App) error {
 	return app.Listen(addr, fiber.ListenConfig{
 		CertFile:      config.AppConfig.TLS.CertFile,
 		CertKeyFile:   config.AppConfig.TLS.KeyFile,
-		EnablePrefork: config.AppConfig.Server.Prefork,
+		EnablePrefork: config.AppConfig.Prefork,
 	})
 }
 
 func StartAPIServer(addr string, app *fiber.App) error {
 	return app.Listen(addr, fiber.ListenConfig{
-		EnablePrefork: config.AppConfig.Server.Prefork,
+		EnablePrefork: config.AppConfig.Prefork,
 	})
 }
