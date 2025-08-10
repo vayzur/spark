@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"github.com/gofiber/fiber/v3"
@@ -6,7 +6,7 @@ import (
 	"github.com/xtls/xray-core/app/proxyman/command"
 )
 
-func addInbound(hsClient command.HandlerServiceClient) fiber.Handler {
+func AddInbound(hsClient command.HandlerServiceClient) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		b := c.Body()
 
@@ -17,7 +17,7 @@ func addInbound(hsClient command.HandlerServiceClient) fiber.Handler {
 	}
 }
 
-func removeInbound(hsClient command.HandlerServiceClient) fiber.Handler {
+func RemoveInbound(hsClient command.HandlerServiceClient) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		tag := c.Params("tag")
 
@@ -28,6 +28,6 @@ func removeInbound(hsClient command.HandlerServiceClient) fiber.Handler {
 		if err := xray.RemoveInbound(hsClient, tag); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 		}
-		return c.SendStatus(fiber.StatusCreated)
+		return c.SendStatus(fiber.StatusNoContent)
 	}
 }
