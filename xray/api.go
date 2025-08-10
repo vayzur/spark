@@ -11,11 +11,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewXrayConn(target string) (conn *grpc.ClientConn, err error) {
+func NewConn(target string) (conn *grpc.ClientConn, err error) {
 	return grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
-func NewXrayHandlerServiceClient(xrayConn grpc.ClientConnInterface) command.HandlerServiceClient {
+func NewHandlerServiceClient(xrayConn grpc.ClientConnInterface) command.HandlerServiceClient {
 	return command.NewHandlerServiceClient(xrayConn)
 }
 
@@ -23,12 +23,12 @@ func AddInbound(hsClient command.HandlerServiceClient, inbound []byte) error {
 	conf := new(conf.InboundDetourConfig)
 	err := json.Unmarshal(inbound, conf)
 	if err != nil {
-		log.Println("failed to unmarshal inbound:", err)
+		log.Printf("inbound unmarshal failed: %v\n", err)
 		return err
 	}
 	config, err := conf.Build()
 	if err != nil {
-		log.Println("failed to build inbound detur:", err)
+		log.Printf("inbound build failed: %v\n", err)
 		return err
 	}
 	inboundConfig := command.AddInboundRequest{Inbound: config}
