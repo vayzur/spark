@@ -13,7 +13,7 @@ build:
 	$(GOBUILD) -o $(BINARY_NAME) -ldflags "-w -s" .
 
 run:
-	$(GORUN) cmd/main.go
+	$(GORUN) main.go -config spark.yml
 
 test:
 	$(GOTEST) -v ./...
