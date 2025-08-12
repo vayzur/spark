@@ -11,6 +11,7 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=0
+    main: cmd/spark/main.go
     ldflags:
       - -s -w -X main.version={{.Version}}
 
