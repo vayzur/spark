@@ -10,10 +10,10 @@ GOMOD=$(GO) mod
 all: build
 
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -ldflags "-w -s" .
+	$(GOBUILD) -o $(BINARY_NAME) -ldflags "-w -s" cmd/spark/main.go
 
 run:
-	$(GORUN) main.go -config spark.yml
+	$(GORUN) cmd/spark/main.go -config spark.yml
 
 test:
 	$(GOTEST) -v ./...
