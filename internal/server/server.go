@@ -44,15 +44,17 @@ func (s *Server) setupRoutes() {
 
 func (s *Server) StartTLS() error {
 	return s.app.Listen(s.addr, fiber.ListenConfig{
-		CertFile:      config.AppConfig.TLS.CertFile,
-		CertKeyFile:   config.AppConfig.TLS.KeyFile,
-		EnablePrefork: config.AppConfig.Prefork,
+		DisableStartupMessage: true,
+		CertFile:              config.AppConfig.TLS.CertFile,
+		CertKeyFile:           config.AppConfig.TLS.KeyFile,
+		EnablePrefork:         config.AppConfig.Prefork,
 	})
 }
 
 func (s *Server) Start() error {
 	return s.app.Listen(s.addr, fiber.ListenConfig{
-		EnablePrefork: config.AppConfig.Prefork,
+		DisableStartupMessage: true,
+		EnablePrefork:         config.AppConfig.Prefork,
 	})
 }
 
