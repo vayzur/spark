@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vayzur/spark/config"
+	"github.com/vayzur/spark/internal/config"
 )
 
 func VerifyRollingHash(header string) error {

@@ -1,4 +1,4 @@
-package httpx
+package httputil
 
 import (
 	"bytes"
@@ -30,7 +30,7 @@ func buildAuthHeader(token string) string {
 	return fmt.Sprintf("rolling %d:%s", ts, sig)
 }
 
-func (x *Client) Do(method, url, token string, body any) (int, []byte, error) {
+func (c *Client) Do(method, url, token string, body any) (int, []byte, error) {
 	var requestBody []byte
 	var err error
 
@@ -49,7 +49,7 @@ func (x *Client) Do(method, url, token string, body any) (int, []byte, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", buildAuthHeader(token))
 
-	resp, err := x.client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return 0, nil, fmt.Errorf("request failed: %w", err)
 	}

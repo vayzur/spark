@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	SparkDir = "/etc/spark"
+	SparkDir   = "/etc/spark"
 	ConfigFile = "spark.yml"
 )
 
