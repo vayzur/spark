@@ -30,7 +30,7 @@ type InfernoConfig struct {
 }
 
 type Config struct {
-	ID                        string        `mapstructure:"nodeID" yaml:"id"`
+	ID                        string        `mapstructure:"nodeID" yaml:"nodeID"`
 	Address                   string        `mapstructure:"address" yaml:"address"`
 	Port                      uint16        `mapstructure:"port" yaml:"port"`
 	Prefork                   bool          `mapstructure:"prefork" yaml:"prefork"`
@@ -39,8 +39,6 @@ type Config struct {
 	Xray                      XrayConfig    `mapstructure:"xray" yaml:"xray"`
 	Inferno                   InfernoConfig `mapstructure:"inferno" yaml:"inferno"`
 	NodeStatusUpdateFrequency time.Duration `mapstructure:"nodeStatusUpdateFrequency" yaml:"nodeStatusUpdateFrequency"`
-	NodeLeaseDurationSeconds  time.Duration `mapstructure:"nodeLeaseDurationSeconds" yaml:"nodeLeaseDurationSeconds"`
-	NodeStatusReportFrequency time.Duration `mapstructure:"nodeStatusReportFrequency" yaml:"nodeStatusReportFrequency"`
 }
 
 var AppConfig *Config
