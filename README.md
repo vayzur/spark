@@ -24,5 +24,5 @@
 git clone https://github.com/vayzur/spark.git
 cd spark
 
-go build -o spark main.go
+go build -o spark cmd/spark/main.go
 ```
