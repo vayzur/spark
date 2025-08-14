@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"syscall"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -16,22 +15,10 @@ import (
 	"github.com/vayzur/spark/internal/server"
 	"github.com/vayzur/spark/pkg/client/inferno"
 	"github.com/vayzur/spark/pkg/client/xray"
+	"github.com/vayzur/spark/pkg/flock"
 	"github.com/vayzur/spark/pkg/health"
 	"github.com/vayzur/spark/pkg/httputil"
 )
-
-func tryLockFile(path string) (*os.File, error) {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0600)
-	if err != nil {
-		return nil, err
-	}
-	err = syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
-	if err != nil {
-		f.Close()
-		return nil, err
-	}
-	return f, nil
-}
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
@@ -68,11 +55,12 @@ func main() {
 	)
 
 	if config.AppConfig.Inferno.Enabled {
-		lock, err := tryLockFile("/tmp/spark-heartbeat.lock")
-		if err == nil {
+		lock := flock.NewFlock("/tmp/spark-heartbeat.lock")
+
+		if err := lock.TryLock(); err == nil {
 			go hb.StartHeartbeat(ctx)
+			defer lock.Unlock()
 		}
-		defer lock.Close()
 	}
 
 	serverAddr := fmt.Sprintf("%s:%d", config.AppConfig.Address, config.AppConfig.Port)
