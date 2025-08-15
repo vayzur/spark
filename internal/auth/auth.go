@@ -9,11 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/vayzur/spark/internal/config"
 )
 
-func VerifyRollingHash(header string) error {
+func VerifyRollingHash(header, token string) error {
 	if !strings.HasPrefix(header, "rolling ") {
 		return errors.New("invalid header prefix")
 	}
@@ -35,7 +33,7 @@ func VerifyRollingHash(header string) error {
 	}
 
 	var b []byte
-	b = fmt.Appendf(b, "%d:%s", ts, config.AppConfig.Token)
+	b = fmt.Appendf(b, "%d:%s", ts, token)
 	hash := sha256.Sum256(b)
 	expected := hex.EncodeToString(hash[:])
 

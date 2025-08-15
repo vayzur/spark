@@ -4,23 +4,25 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/vayzur/spark/internal/auth"
-	"github.com/vayzur/spark/internal/config"
 	"github.com/vayzur/spark/pkg/client/xray"
 )
 
 type Server struct {
 	addr       string
+	token      string
+	prefork    bool
 	app        *fiber.App
 	XrayClient *xray.XrayClient
 }
 
-func NewServer(addr string, xrayClient *xray.XrayClient) *Server {
+func NewServer(addr, token string, xrayClient *xray.XrayClient) *Server {
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
 		StrictRouting: true,
 	})
 	s := &Server{
 		addr:       addr,
+		token:      token,
 		app:        app,
 		XrayClient: xrayClient,
 	}
@@ -29,7 +31,7 @@ func NewServer(addr string, xrayClient *xray.XrayClient) *Server {
 }
 
 func (s *Server) setupRoutes() {
-	// s.app.Use(authMiddleware)
+	s.app.Use(s.authMiddleware)
 
 	s.app.Get(healthcheck.LivenessEndpoint, healthcheck.New())
 	s.app.Get(healthcheck.ReadinessEndpoint, healthcheck.New())
@@ -42,19 +44,19 @@ func (s *Server) setupRoutes() {
 	inbounds.Delete("/:tag", s.RemoveInbound)
 }
 
-func (s *Server) StartTLS() error {
+func (s *Server) StartTLS(certFilePath, keyFilePath string) error {
 	return s.app.Listen(s.addr, fiber.ListenConfig{
 		DisableStartupMessage: true,
-		CertFile:              config.AppConfig.TLS.CertFile,
-		CertKeyFile:           config.AppConfig.TLS.KeyFile,
-		EnablePrefork:         config.AppConfig.Prefork,
+		CertFile:              certFilePath,
+		CertKeyFile:           keyFilePath,
+		EnablePrefork:         s.prefork,
 	})
 }
 
 func (s *Server) Start() error {
 	return s.app.Listen(s.addr, fiber.ListenConfig{
 		DisableStartupMessage: true,
-		EnablePrefork:         config.AppConfig.Prefork,
+		EnablePrefork:         s.prefork,
 	})
 }
 
@@ -62,13 +64,13 @@ func (s *Server) Stop() error {
 	return s.app.Shutdown()
 }
 
-func authMiddleware(c fiber.Ctx) error {
+func (s *Server) authMiddleware(c fiber.Ctx) error {
 	h := c.Get("Authorization")
 	if h == "" {
 		return fiber.ErrUnauthorized
 	}
 
-	if err := auth.VerifyRollingHash(h); err != nil {
+	if err := auth.VerifyRollingHash(h, s.token); err != nil {
 		return fiber.ErrUnauthorized
 	}
 	return c.Next()

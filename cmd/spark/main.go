@@ -26,14 +26,16 @@ func main() {
 	configPath := flag.String("config", filepath.Join(config.SparkDir, config.ConfigFile), "Path to config file")
 	flag.Parse()
 
-	if err := config.LoadConfig(*configPath); err != nil {
+	cfg := config.SparkConfig{}
+
+	if err := config.Load(*configPath, &cfg); err != nil {
 		zlog.Fatal().Err(err).Msg("config load failed")
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	xrayEndpoint := fmt.Sprintf("%s:%d", config.AppConfig.Xray.Address, config.AppConfig.Xray.Port)
+	xrayEndpoint := fmt.Sprintf("%s:%d", cfg.Xray.Address, cfg.Xray.Port)
 	xrayClient, err := xray.NewXrayClient(xrayEndpoint)
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("xray connect failed")
@@ -44,17 +46,17 @@ func main() {
 	httpClient := httputil.New(time.Second * 5)
 	infernoClient := inferno.NewInfernoClient(
 		httpClient,
-		config.AppConfig.Inferno.Server,
-		config.AppConfig.Inferno.Token,
-		config.AppConfig.ID,
+		cfg.Inferno.Server,
+		cfg.Inferno.Token,
+		cfg.ID,
 	)
 
 	hb := health.NewHeartbeatManager(
 		infernoClient,
-		config.AppConfig.NodeStatusUpdateFrequency,
+		cfg.NodeStatusUpdateFrequency,
 	)
 
-	if config.AppConfig.Inferno.Enabled {
+	if cfg.Inferno.Enabled {
 		lock := flock.NewFlock("/tmp/spark-heartbeat.lock")
 
 		if err := lock.TryLock(); err == nil {
@@ -63,19 +65,19 @@ func main() {
 		}
 	}
 
-	serverAddr := fmt.Sprintf("%s:%d", config.AppConfig.Address, config.AppConfig.Port)
+	serverAddr := fmt.Sprintf("%s:%d", cfg.Address, cfg.Port)
 
-	apiserver := server.NewServer(serverAddr, xrayClient)
+	apiserver := server.NewServer(serverAddr, cfg.Token, xrayClient)
 
 	go func() {
-		if config.AppConfig.TLS.Enabled {
-			zlog.Fatal().Err(apiserver.StartTLS())
+		if cfg.TLS.Enabled {
+			zlog.Fatal().Err(apiserver.StartTLS(cfg.TLS.CertFile, cfg.TLS.KeyFile))
 		} else {
 			zlog.Fatal().Err(apiserver.Start())
 		}
 	}()
 
-	defer apiserver.Stop()
+	defer zlog.Fatal().Err(apiserver.Stop())
 
 	zlog.Info().Str("component", "apiserver").Msg("server started")
 	<-ctx.Done()

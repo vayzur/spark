@@ -29,7 +29,7 @@ type InfernoConfig struct {
 	Token   string `mapstructure:"token" yaml:"token"`
 }
 
-type Config struct {
+type SparkConfig struct {
 	ID                        string        `mapstructure:"nodeID" yaml:"nodeID"`
 	Address                   string        `mapstructure:"address" yaml:"address"`
 	Port                      uint16        `mapstructure:"port" yaml:"port"`
@@ -41,16 +41,14 @@ type Config struct {
 	NodeStatusUpdateFrequency time.Duration `mapstructure:"nodeStatusUpdateFrequency" yaml:"nodeStatusUpdateFrequency"`
 }
 
-var AppConfig *Config
-
-func LoadConfig(configPath string) error {
+func Load(configPath string, cfg any) error {
 	viper.SetConfigFile(configPath)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return fmt.Errorf("failed to read config file: %w", err)
 	}
 
-	if err := viper.Unmarshal(&AppConfig); err != nil {
+	if err := viper.Unmarshal(cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
 
